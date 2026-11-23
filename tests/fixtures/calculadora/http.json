@@ -16,7 +16,7 @@
    "detail": "Alíquota de referencia ou padrão não encontrada para o tributo com id 2, UF null, município null e data 2027-03-10",
    "instance": "/api/calculadora/dados-abertos/aliquota-uniao",
    "status": 404,
-   "timestamp": "2026-11-23T14:20:59.834220500Z",
+   "timestamp": "2026-11-23T16:37:39.958040100Z",
    "title": "Alíquota não encontrada",
    "type": "http://localhost/errors/aliquota-nao-encontrada"
   },
@@ -9943,7 +9943,7 @@
   },
   "status": 200
  },
- "POST /api/calculadora/regime-geral? {\"id\":\"rtc-tools\",\"versao\":\"1.0.0\",\"dhFatoGerador\":\"2026-06-01T12:00:00-03:00\",\"municipio\":3550308,\"uf\":\"SP\",\"itens\":[{\"numero\":1,\"ncm\":\"10063021\",\"cst\":\"200\",\"cClassTrib\":\"200003\",\"baseCalculo\":500.0,\"quantidade\":1,\"unidade\":\"UN\"}]}": {
+ "POST /api/calculadora/regime-geral? {\"id\":\"rtc-tools\",\"versao\":\"1.0.0\",\"dhFatoGerador\":\"2026-06-01T12:00:00-03:00\",\"municipio\":3550308,\"uf\":\"SP\",\"itens\":[{\"numero\":1,\"ncm\":\"10063021\",\"cst\":\"200\",\"cClassTrib\":\"200003\",\"baseCalculo\":500.0,\"quantidade\":1.0,\"unidade\":\"UN\"}]}": {
   "body": {
    "objetos": [
     {
@@ -10030,7 +10030,7 @@
   },
   "status": 200
  },
- "POST /api/calculadora/regime-geral? {\"id\":\"rtc-tools\",\"versao\":\"1.0.0\",\"dhFatoGerador\":\"2026-06-01T12:00:00-03:00\",\"municipio\":4314902,\"uf\":\"RS\",\"itens\":[{\"numero\":1,\"ncm\":\"61091000\",\"cst\":\"000\",\"cClassTrib\":\"000001\",\"baseCalculo\":1000.0,\"quantidade\":1,\"unidade\":\"UN\"}]}": {
+ "POST /api/calculadora/regime-geral? {\"id\":\"rtc-tools\",\"versao\":\"1.0.0\",\"dhFatoGerador\":\"2026-06-01T12:00:00-03:00\",\"municipio\":4314902,\"uf\":\"RS\",\"itens\":[{\"numero\":1,\"ncm\":\"61091000\",\"cst\":\"000\",\"cClassTrib\":\"000001\",\"baseCalculo\":1000.0,\"quantidade\":1.0,\"unidade\":\"UN\"}]}": {
   "body": {
    "objetos": [
     {
@@ -10105,7 +10105,7 @@
   },
   "status": 200
  },
- "POST /api/calculadora/regime-geral? {\"id\":\"rtc-tools\",\"versao\":\"1.0.0\",\"dhFatoGerador\":\"2027-03-10T12:00:00-03:00\",\"municipio\":3106200,\"uf\":\"MG\",\"itens\":[{\"numero\":1,\"ncm\":\"84713012\",\"cst\":\"000\",\"cClassTrib\":\"000001\",\"baseCalculo\":2000.0,\"quantidade\":1,\"unidade\":\"UN\",\"aliquotasNominais\":{\"cbs\":8.8,\"ibsEstadual\":0.05,\"ibsMunicipal\":0.05}}]}": {
+ "POST /api/calculadora/regime-geral? {\"id\":\"rtc-tools\",\"versao\":\"1.0.0\",\"dhFatoGerador\":\"2027-03-10T12:00:00-03:00\",\"municipio\":3106200,\"uf\":\"MG\",\"itens\":[{\"numero\":1,\"ncm\":\"84713012\",\"cst\":\"000\",\"cClassTrib\":\"000001\",\"baseCalculo\":2000.0,\"quantidade\":1.0,\"unidade\":\"UN\",\"aliquotasNominais\":{\"cbs\":8.8,\"ibsEstadual\":0.05,\"ibsMunicipal\":0.05}}]}": {
   "body": {
    "objetos": [
     {
@@ -10180,23 +10180,23 @@
   },
   "status": 200
  },
- "POST /api/calculadora/regime-geral? {\"id\":\"rtc-tools\",\"versao\":\"1.0.0\",\"dhFatoGerador\":\"2027-03-10T12:00:00-03:00\",\"municipio\":3106200,\"uf\":\"MG\",\"itens\":[{\"numero\":1,\"ncm\":\"84713012\",\"cst\":\"000\",\"cClassTrib\":\"000001\",\"baseCalculo\":2000.0,\"quantidade\":1,\"unidade\":\"UN\"}]}": {
+ "POST /api/calculadora/regime-geral? {\"id\":\"rtc-tools\",\"versao\":\"1.0.0\",\"dhFatoGerador\":\"2027-03-10T12:00:00-03:00\",\"municipio\":3106200,\"uf\":\"MG\",\"itens\":[{\"numero\":1,\"ncm\":\"84713012\",\"cst\":\"000\",\"cClassTrib\":\"000001\",\"baseCalculo\":2000.0,\"quantidade\":1.0,\"unidade\":\"UN\"}]}": {
   "body": {
    "detail": "As alíquotas nominais (os três campos cbs, ibsEstadual e ibsMunicipal) devem ser informadas para operações com fato gerador a partir de 01/01/2027",
    "instance": "/api/calculadora/regime-geral",
    "status": 422,
-   "timestamp": "2026-11-23T14:20:59.745202300Z",
+   "timestamp": "2026-11-23T16:37:39.820927300Z",
    "title": "Alíquotas nominais não informadas",
    "type": "http://localhost/errors/aliquotas-nominais-nao-informadas"
   },
   "status": 422
  },
- "POST /api/calculadora/regime-geral? {\"id\":\"rtc-tools\",\"versao\":\"1.0.0\",\"dhFatoGerador\":\"2027-03-10T12:00:00-03:00\",\"municipio\":4314902,\"uf\":\"RS\",\"itens\":[{\"numero\":1,\"ncm\":\"22030000\",\"cst\":\"000\",\"cClassTrib\":\"000001\",\"baseCalculo\":1000.0,\"quantidade\":1,\"unidade\":\"UN\",\"aliquotasNominais\":{\"cbs\":8.8,\"ibsEstadual\":0.05,\"ibsMunicipal\":0.05}}]}": {
+ "POST /api/calculadora/regime-geral? {\"id\":\"rtc-tools\",\"versao\":\"1.0.0\",\"dhFatoGerador\":\"2027-03-10T12:00:00-03:00\",\"municipio\":4314902,\"uf\":\"RS\",\"itens\":[{\"numero\":1,\"ncm\":\"22030000\",\"cst\":\"000\",\"cClassTrib\":\"000001\",\"baseCalculo\":1000.0,\"quantidade\":1.0,\"unidade\":\"UN\",\"aliquotasNominais\":{\"cbs\":8.8,\"ibsEstadual\":0.05,\"ibsMunicipal\":0.05}}]}": {
   "body": {
    "detail": "Dados do Imposto Seletivo devem ser informados para NCM 22030000 e data 2027-03-10",
    "instance": "/api/calculadora/regime-geral",
    "status": 422,
-   "timestamp": "2026-11-23T14:20:59.758197600Z",
+   "timestamp": "2026-11-23T16:37:39.842705900Z",
    "title": "Dados do Imposto Seletivo não informados",
    "type": "http://localhost/errors/dados-imposto-seletivo-nao-informados"
   },

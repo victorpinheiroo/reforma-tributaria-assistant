@@ -44,7 +44,7 @@ class ItemOperacao(BaseModel):
     valor: float = Field(gt=0, description="Base de cálculo em reais")
     cst: str = Field(default="000", description="CST da CBS/IBS; 000 = tributação integral")
     cclasstrib: str = Field(default="000001", description="Classificação tributária, 6 dígitos")
-    quantidade: float = Field(default=1, gt=0)
+    quantidade: float = Field(default=1.0, gt=0)
     unidade: str = "UN"
 
     @field_validator("ncm")

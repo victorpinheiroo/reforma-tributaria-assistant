@@ -17,3 +17,15 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run pytest -q
+
+  docker:
+    # `docker compose up` must work with no account: official calculator built from source,
+    # API (search + calculate need no model) and the Streamlit app.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up -d --build --wait
+        timeout-minutes: 40
+      - run: bash scripts/docker_smoke.sh
+      - if: failure()
+        run: docker compose logs --tail 200

@@ -188,6 +188,55 @@ agente às perguntas do golden):
 verificação de vigência reprovou "Sim, é possível" e a correção respondeu que a regra só vale em
 2027. Seguem errados: q02 e q15 (roteador) e q14 (busca de "cashback").
 
+## Marco 6: 62 perguntas, API, app e Docker (2026-11-23)
+
+**Golden v2** (`evals/golden_qa.jsonl`, 62 perguntas; as 42 novas commitadas em `7ebed3a` antes de
+rodar o agente nelas). Valores esperados das numéricas obtidos chamando a calculadora oficial
+diretamente; artigos esperados lidos na lei.
+
+**Ponta a ponta: 52/62 (84%)**; v1 17/20, v2 35/42.
+
+| desfecho esperado | acertos |
+| --- | --- |
+| resposta | 37/47 |
+| sem número oficial (2027+) | 4/4 |
+| pergunta de volta (sem data) | 2/2 |
+| regra ainda não vigente | 3/3 |
+| fora do escopo | 5/5 |
+| não encontrei | 1/1 |
+
+- **Nenhum valor errado mostrado.** Das 20 perguntas com valor esperado, 16 batem exatamente com a
+  calculadora; as 4 restantes terminam sem número: 3 por roteamento (q15, q29, q30 mandadas para
+  a lei em vez da calculadora) e 1 bloqueada (q25).
+- **q25 bloqueada por desenho, mas resultado ruim**: o modelo somou CBS + IBS (90,00 + 1,00) e
+  escreveu "R$ 91,00", número que a calculadora não devolve (ela não tem total CBS+IBS). O
+  verificador barrou duas vezes e a resposta correta virou recusa. Próximo passo, medido à parte:
+  `synth@2` com a regra "não some nem converta valores; reporte cada tributo como a calculadora
+  devolveu". Não apliquei agora para não ajustar contra este golden.
+- **Golden estreito demais em 2 casos** (q35 aluguel, q52 ZFM 2030): o agente citou dispositivos
+  legítimos que o golden não listava (art. 487, opção do locador pessoa física; art. 450,
+  percentuais do crédito do art. 449). Mantidos como falha; não alterei o golden depois da rodada.
+- Outros erros: q34 (cita a lei, mas não o art. 125), q45 (importação de serviços, outro artigo),
+  q02/q14 como antes.
+
+**API** (`src/rtc/api.py`): `/v1/ask` (agente), `/v1/search` e `/v1/calculate` (sem modelo),
+`/v1/history`, `/healthz` com a versão da calculadora. **App** Streamlit só renderiza: resposta
+com selo de desfecho e verificação, trechos citados com vigência, chamadas à calculadora com a
+requisição; abas de busca e cálculo diretos.
+
+**Docker**: `docker/calculadora.Dockerfile` compila a calculadora oficial 1.7.2 do código-fonte
+(Temurin 25, Flyway, Maven); a imagem da API traz modelos e embeddings do corpus prontos.
+`docker compose up --build` sobe os três; `scripts/docker_smoke.sh` (no CI) confere saúde,
+CBS 9,00 / IBS 1,00 em 2026, busca do art. 346 e o app. Validado só no CI: esta máquina não tem
+Docker.
+
+Correções no caminho: o cliente MCP repassa só PATH/HOME ao subprocesso por padrão; agora o
+ambiente inteiro vai junto (no container, sem isso o servidor MCP procuraria a calculadora em
+localhost). Quantidade padrão do item como 1.0 (a revalidação na API mudava "1" para "1.0" no
+JSON enviado à calculadora).
+
+Vídeo: fora do escopo (mesma decisão do macro-sql-br; a primeira tela do README cumpre o papel).
+
 ## Cronograma (fatia vertical primeiro)
 
 | Marco | Entrega | Critério de pronto |
@@ -197,14 +246,13 @@ verificação de vigência reprovou "Sim, é possível" e a correção respondeu
 | 3 ✅ | Corpus por dispositivo com vigência; RAG híbrido (denso + BM25 + RRF + filtro de vigência); golden set escrito **antes** da busca | recall@k por tipo de pergunta |
 | 4 ✅ | Grafo LangGraph: data de referência, roteador, RAG, ferramenta, síntese | ponta a ponta no golden set |
 | 5 ✅ | Verificação: citação sustenta a frase, todo número veio de ferramenta, vigência bate | % de números sem origem bloqueados |
-| 6 | 60+ perguntas, Streamlit, Docker (calculadora + API + app), README | `docker compose up` sem conta Databricks |
+| 6 ✅ | 60+ perguntas, Streamlit, Docker (calculadora + API + app), README | `docker compose up` sem conta Databricks |
 | 7 | (extensão) Sugestão de classificação fiscal | |
 
 ## Decisões pendentes
 
-- [ ] Docker da calculadora: o repositório oficial não traz Dockerfile; escrever um (Temurin 25 +
-  build do JAR + banco Flyway) e validar no CI (esta máquina não tem Docker).
-- [ ] Confirmar o número da lei do Comitê Gestor (LC 227/2026?) no texto oficial.
+- [x] Docker da calculadora: `docker/calculadora.Dockerfile` (Temurin 25, build do código-fonte); validado no CI.
+- [x] Lei do Comitê Gestor confirmada: LC 227/2026 (DOU 14/1/2026).
 - [ ] Casos de 2027+ no golden set: resposta esperada = pedir alíquota ou calcular com hipótese
   declarada; nunca número apresentado como oficial.
 - [ ] Município: a calculadora usa código IBGE; resolver nome → código via

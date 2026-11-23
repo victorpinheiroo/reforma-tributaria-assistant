@@ -1,0 +1,10 @@
+.venv
+.git
+.cache
+.pytest_cache
+.ruff_cache
+tools
+vendor
+corpus/raw
+evals/results/*.jsonl
+**/__pycache__

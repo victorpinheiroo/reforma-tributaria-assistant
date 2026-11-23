@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import re
 import sys
 import time
@@ -146,8 +147,13 @@ class Toolbox:
     @classmethod
     @asynccontextmanager
     async def open(cls):
+        # Full environment: the server needs RTC_CALCULADORA_URL (the MCP client otherwise passes
+        # only a minimal set such as PATH and HOME).
         params = StdioServerParameters(
-            command=sys.executable, args=["-m", "rtc.mcp_server"], cwd=str(ROOT)
+            command=sys.executable,
+            args=["-m", "rtc.mcp_server"],
+            cwd=str(ROOT),
+            env=dict(os.environ),
         )
         async with stdio_client(params) as (r, w), ClientSession(r, w) as session:
             await session.initialize()

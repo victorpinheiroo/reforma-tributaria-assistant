@@ -16,12 +16,17 @@ dependencies = [
     "numpy>=2.4.6",
     "torch>=2.4",
     "langgraph>=1.2.24",
+    "fastapi>=0.165.0",
+    "uvicorn[standard]>=0.54.0",
 ]
 
 [project.scripts]
 rtc-tools = "rtc.mcp_server:main"
 
 [dependency-groups]
+app = [
+    "streamlit>=1.67.0",
+]
 dev = ["pytest>=8", "ruff>=0.5"]
 
 [build-system]
@@ -50,6 +55,8 @@ select = ["E", "F", "I", "B", "UP"]
 "src/rtc/verify.py" = ["E501"]
 "tests/test_verify.py" = ["E501"]
 "src/rtc/verify_eval.py" = ["E501"]
+"app/streamlit_app.py" = ["E501"]
+"tests/test_api.py" = ["E501"]
 
 # CPU-only torch on Linux (CI, Docker): the default wheel ships CUDA and is several GB.
 [tool.uv.sources]
