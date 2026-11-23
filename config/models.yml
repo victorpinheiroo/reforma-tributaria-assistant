@@ -1,0 +1,3 @@
+# Model choice lives here, never in code. Databricks Free Edition serving endpoints.
+# agent: picked from the milestone-1 tool-calling spike (8/8) and macro-sql-br's routing results.
+agent: databricks-qwen35-122b-a10b

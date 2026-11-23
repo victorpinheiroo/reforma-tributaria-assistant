@@ -5,10 +5,11 @@ of the largest VAT transitions in the world. This assistant answers questions wi
 article and computes amounts by calling the Federal Revenue's official open-source tax engine,
 never by letting the model do the math.
 
-> Status: milestone 3. MCP server over the official calculator (14/14 checks over stdio) and
-> hybrid retrieval over the law with vigência: 22/26 article hits in the top 5 on a golden set
-> written before the retriever; the vigência filter cuts citations of rules not yet in effect from
-> 2/2 to 0/2. See [docs/PLAN.md](docs/PLAN.md).
+> Status: milestone 4. A LangGraph agent routes each question, retrieves the law with
+> vigência, calls the official calculator over MCP and writes a cited answer: 16/20 on an
+> end-to-end golden set committed before the agent existed (calculator values exact where a
+> calculation was expected; no number invented for 2027+, when no official rate exists yet).
+> See [docs/PLAN.md](docs/PLAN.md).
 >
 > Not tax advice: answers come from official documents and tools and do not replace an accountant.
 
@@ -50,4 +51,19 @@ RRF fusion, vigência filter at the reference date, cross-encoder reranker, all 
 ```bash
 uv run python -m rtc.ingest.build        # corpus/processed from corpus/raw (pinned by sha256)
 uv run python -m rtc.retrieval_eval      # evals/results/retrieval.md
+```
+
+## The agent
+
+```
+router ─► out of scope ─────────────────────────────► answer (decline)
+   │   ─► calculation without a date ────────────────► ask back (deterministic)
+   ├─► rag ──────────────► synth   conceptual: law text, with vigência at the reference date
+   ├─► tools (MCP) ──────► synth   numeric: official calculator, the only source of amounts
+   └─► rag ─► tools ─────► synth   mixed
+```
+
+```bash
+scripts/setup_calculadora.sh run     # official calculator on :8080
+uv run python -m rtc.qa_eval         # 20 end-to-end questions -> evals/results/qa.md
 ```

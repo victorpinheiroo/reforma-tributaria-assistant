@@ -15,6 +15,7 @@ dependencies = [
     "sentence-transformers>=6.3.0",
     "numpy>=2.4.6",
     "torch>=2.4",
+    "langgraph>=1.2.24",
 ]
 
 [project.scripts]
@@ -40,6 +41,12 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# user-facing Portuguese sentences and prompt fragments read better unbroken
+"src/rtc/graph.py" = ["E501"]
+"tests/test_graph.py" = ["E501"]
+"src/rtc/qa_eval.py" = ["E501"]
 
 # CPU-only torch on Linux (CI, Docker): the default wheel ships CUDA and is several GB.
 [tool.uv.sources]

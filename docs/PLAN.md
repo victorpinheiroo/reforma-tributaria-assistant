@@ -113,6 +113,39 @@ Achados:
 **Desvio do escopo**: vetor em numpy atrás de interface, não Chroma (exato e determinístico para ~2
 mil chunks; Chroma pode implementar a mesma interface no marco 6).
 
+## Marco 4: agente LangGraph ponta a ponta (2026-11-23)
+
+`src/rtc/graph.py`: router -> (fora_escopo | pergunta_de_volta | rag | tools | rag+tools) ->
+synth. Modelo `databricks-qwen35-122b-a10b` (`config/models.yml`); prompts `router@1`,
+`tools@1`, `synth@1`. Ferramentas chamadas **pelo protocolo MCP** (o grafo abre `rtc-tools` por
+stdio e usa os schemas que o servidor publica, com tool calling nativo). Decisões
+determinísticas, fora do modelo: cálculo de operação sem data -> pergunta de volta; data que o
+roteador "inventa" sem a pergunta trazer é descartada (usa hoje); regra mais relevante ainda não
+vigente é detectada buscando com e sem o filtro de vigência e entra na síntese marcada "NÃO
+VIGENTE na data".
+
+Golden ponta a ponta (`evals/golden_qa.jsonl`, 20 perguntas) commitado antes do grafo
+(`4f291c6`). Resultado (`evals/results/qa.md`), modelo, busca e calculadora reais:
+
+| passou | desfecho | citação | valores da calculadora | rota |
+| --- | --- | --- | --- | --- |
+| **16/20** | 17/20 | 8/10 | 5/6 | 17/20 |
+
+- 1ª rodada 14/20. Duas mudanças depois dela, separadas: (a) código: repetir a síntese uma vez
+  quando o modelo devolve texto sem JSON (q07 tinha o cálculo certo e perdeu a resposta); (b)
+  golden: q10 (IRPF) esperava "nao_encontrei" com rota "fora_escopo", incoerente; corrigido para
+  "fora_escopo" e anotado no próprio caso. Sem (b), 15/20.
+- Acertos que importam: 2026 calculado igual à calculadora (CBS 9,00 / IBS 1,00; cesta básica
+  0,00); 2027 sem alíquota -> explica e não dá número (q05, q17); 2027 com alíquota hipotética do
+  usuário -> R$ 176,00 dizendo que é hipótese (q07); cálculo sem data -> pergunta a data (q06).
+- Erros que ficam: roteador manda "alíquota da CBS em 2026" para numérica e não cita a lei (q02);
+  manda "NCM 2203 tem IS em 2027?" para conceitual e não chama a ferramenta (q15); "cashback" não
+  aparece na lei ("devolução personalizada"), a busca falha e a resposta é um "não encontrei"
+  honesto (q14); regra de 2027 marcada como não vigente, mas a resposta abre com "Sim, é possível"
+  (q08) -> é o caso que a verificação do marco 5 precisa pegar.
+- Modelo devolve argumentos aninhados como string JSON (`"itens": "[{...}]"`); o servidor MCP
+  converte e a calculadora recebe o objeto certo.
+
 ## Cronograma (fatia vertical primeiro)
 
 | Marco | Entrega | Critério de pronto |
@@ -120,7 +153,7 @@ mil chunks; Chroma pode implementar a mesma interface no marco 6).
 | 1 ✅ | Spike: calculadora local, 5+ cálculos, tool calling nos modelos gratuitos | este documento |
 | 2 ✅ | Servidor MCP `rtc-tools` sobre a calculadora + testes contra as fixtures | cliente MCP real por stdio lista e chama as ferramentas (o Inspector exige Node, ausente aqui); testes sem a calculadora no ar |
 | 3 ✅ | Corpus por dispositivo com vigência; RAG híbrido (denso + BM25 + RRF + filtro de vigência); golden set escrito **antes** da busca | recall@k por tipo de pergunta |
-| 4 | Grafo LangGraph: data de referência, roteador, RAG, ferramenta, síntese | ponta a ponta no golden set |
+| 4 ✅ | Grafo LangGraph: data de referência, roteador, RAG, ferramenta, síntese | ponta a ponta no golden set |
 | 5 | Verificação: citação sustenta a frase, todo número veio de ferramenta, vigência bate | % de números sem origem bloqueados |
 | 6 | 60+ perguntas, Streamlit, Docker (calculadora + API + app), README | `docker compose up` sem conta Databricks |
 | 7 | (extensão) Sugestão de classificação fiscal | |
