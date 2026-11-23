@@ -1,0 +1,30 @@
+{"id": "r01", "pergunta": "Quem não precisa pagar IBS e CBS por não ser contribuinte?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 214/2025, art. 26"]}
+{"id": "r02", "pergunta": "O que é nanoempreendedor na reforma tributária?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 214/2025, art. 26"]}
+{"id": "r03", "pergunta": "Qual é a alíquota da CBS cobrada em 2026?", "data_referencia": "2026-06-01", "tipo": "numero_no_texto", "relevantes": ["LC 214/2025, art. 346"]}
+{"id": "r04", "pergunta": "Qual a alíquota do IBS no ano de teste de 2026?", "data_referencia": "2026-06-01", "tipo": "numero_no_texto", "relevantes": ["LC 214/2025, art. 343"]}
+{"id": "r05", "pergunta": "Quais atividades têm redução de 60% nas alíquotas do IBS e da CBS?", "data_referencia": "2026-06-01", "tipo": "numero_no_texto", "relevantes": ["LC 214/2025, art. 128", "LC 214/2025, art. 129", "LC 214/2025, art. 130"]}
+{"id": "r06", "pergunta": "Advogados, engenheiros e outros profissionais liberais pagam menos IBS e CBS?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 214/2025, art. 127"]}
+{"id": "r07", "pergunta": "Arroz tem alíquota zero de IBS e CBS?", "data_referencia": "2026-06-01", "tipo": "anexo", "relevantes": ["LC 214/2025, art. 125", "LC 214/2025, Anexo I"]}
+{"id": "r08", "pergunta": "Frutas, verduras e ovos pagam IBS e CBS?", "data_referencia": "2026-06-01", "tipo": "anexo", "relevantes": ["LC 214/2025, art. 148", "LC 214/2025, Anexo XV"]}
+{"id": "r09", "pergunta": "Como funciona o cashback dos tributos para famílias de baixa renda?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 214/2025, art. 112", "LC 214/2025, art. 113"]}
+{"id": "r10", "pergunta": "O que é o split payment e quem faz o recolhimento?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 214/2025, art. 31", "LC 214/2025, art. 27"]}
+{"id": "r11", "pergunta": "Em que momento ocorre o fato gerador do IBS e da CBS?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 214/2025, art. 10"]}
+{"id": "r12", "pergunta": "Qual é a base de cálculo do IBS e da CBS?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 214/2025, art. 12"]}
+{"id": "r13", "pergunta": "Quem exporta paga IBS e CBS?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 214/2025, art. 8", "LC 214/2025, art. 79"]}
+{"id": "r14", "pergunta": "Sobre o que incide o Imposto Seletivo?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 214/2025, art. 409"]}
+{"id": "r15", "pergunta": "Cerveja e outras bebidas alcoólicas pagam o imposto do pecado?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 214/2025, art. 409"]}
+{"id": "r16", "pergunta": "O que é o redutor social na venda de imóvel residencial novo?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 214/2025, art. 259"]}
+{"id": "r17", "pergunta": "Quais alimentos fazem parte da Cesta Básica Nacional com alíquota zero?", "data_referencia": "2026-06-01", "tipo": "anexo", "relevantes": ["LC 214/2025, art. 125", "LC 214/2025, Anexo I"]}
+{"id": "r18", "pergunta": "O que é o Comitê Gestor do IBS e qual a sua natureza jurídica?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 227/2026, art. 1", "LC 214/2025, art. 480"]}
+{"id": "r19", "pergunta": "Marketplaces e plataformas digitais respondem pelo IBS e pela CBS das vendas?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 214/2025, art. 22"]}
+{"id": "r20", "pergunta": "Quem compra de empresa do Simples Nacional pode tomar crédito de IBS e CBS?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 214/2025, art. 47"]}
+{"id": "r21", "pergunta": "Quais tributos a Lei Complementar 214 criou?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 214/2025, art. 1"]}
+{"id": "r22", "pergunta": "Como as alíquotas de ICMS e ISS vão cair entre 2029 e 2032?", "data_referencia": "2026-06-01", "tipo": "numero_no_texto", "relevantes": ["ADCT (red. EC 132/2023), art. 128"]}
+{"id": "r23", "pergunta": "Medicamentos têm redução de IBS e CBS?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 214/2025, art. 128", "LC 214/2025, art. 133"]}
+{"id": "r24", "pergunta": "Qual o prazo para impugnar um lançamento de ofício do IBS?", "data_referencia": "2026-06-01", "tipo": "numero_no_texto", "relevantes": ["LC 227/2026, art. 67"]}
+{"id": "r25", "pergunta": "Insumos agropecuários têm redução de alíquota?", "data_referencia": "2026-06-01", "tipo": "conceitual", "relevantes": ["LC 214/2025, art. 138"]}
+{"id": "r26", "pergunta": "Posso tomar crédito presumido ao contratar transportador autônomo de carga pessoa física?", "data_referencia": "2027-06-01", "tipo": "data", "relevantes": ["LC 214/2025, art. 169"]}
+{"id": "r27", "pergunta": "Posso tomar crédito presumido ao contratar transportador autônomo de carga pessoa física?", "data_referencia": "2026-06-01", "tipo": "data", "relevantes": [], "futuros": ["LC 214/2025, art. 169"], "nota": "art. 169 só produz efeitos em 2027 (art. 544, III): em 2026 a resposta é que a regra ainda não vale"}
+{"id": "r28", "pergunta": "Indústria habilitada importa bem com suspensão de IBS e CBS?", "data_referencia": "2026-06-01", "tipo": "data", "relevantes": [], "futuros": ["LC 214/2025, art. 461"], "nota": "art. 461 produz efeitos a partir de 2027"}
+{"id": "r29", "pergunta": "Qual a alíquota do imposto de renda da pessoa física?", "data_referencia": "2026-06-01", "tipo": "sem_resposta", "relevantes": []}
+{"id": "r30", "pergunta": "Como muda a contribuição do INSS sobre a folha de salários?", "data_referencia": "2026-06-01", "tipo": "sem_resposta", "relevantes": []}

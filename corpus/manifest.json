@@ -1,0 +1,27 @@
+{
+  "retrieved": "2026-11-23",
+  "note": "Planalto compiled texts (texto compilado); superseded wording struck through in the source and dropped by the parser.",
+  "sources": [
+    {
+      "file": "lcp214.htm.gz",
+      "lei": "LC 214/2025",
+      "url": "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp214.htm",
+      "sha256_html": "6e18f80dae1ea89055254921bf404339193d9e763a6fc3132581c455552e9d2c",
+      "bytes": 5403923
+    },
+    {
+      "file": "lcp227.htm.gz",
+      "lei": "LC 227/2026",
+      "url": "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp227.htm",
+      "sha256_html": "4175167fdfa317c29b622f9c766602625f620fa621318f15cfeab3a2bc31b81c",
+      "bytes": 1332449
+    },
+    {
+      "file": "emc132.htm.gz",
+      "lei": "EC 132/2023",
+      "url": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc132.htm",
+      "sha256_html": "84aa59a6a653dc61077220c0c136d745d3392f05a4a2d1fee90e539ab63b1d71",
+      "bytes": 510399
+    }
+  ]
+}

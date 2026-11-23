@@ -25,3 +25,6 @@ vendor/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Raw sources are committed gzipped (corpus/raw/*.htm.gz); the expanded copies are local only
+corpus/raw/*.htm
