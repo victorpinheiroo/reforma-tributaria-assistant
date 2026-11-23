@@ -5,11 +5,12 @@ of the largest VAT transitions in the world. This assistant answers questions wi
 article and computes amounts by calling the Federal Revenue's official open-source tax engine,
 never by letting the model do the math.
 
-> Status: milestone 4. A LangGraph agent routes each question, retrieves the law with
-> vigência, calls the official calculator over MCP and writes a cited answer: 16/20 on an
-> end-to-end golden set committed before the agent existed (calculator values exact where a
-> calculation was expected; no number invented for 2027+, when no official rate exists yet).
-> See [docs/PLAN.md](docs/PLAN.md).
+> Status: milestone 5. Every answer is verified before it is shown: each number must come from
+> the official calculator, a cited legal excerpt or the user's question; a rule not yet in effect
+> cannot be presented as current; each cited sentence is checked against its excerpt. On 47
+> mistakes seeded into real answers the verifier caught 44, including **32/32 unsourced or
+> altered numbers with 0 false alarms**. End to end: 17/20 on a golden set committed before the
+> agent. See [docs/PLAN.md](docs/PLAN.md).
 >
 > Not tax advice: answers come from official documents and tools and do not replace an accountant.
 
@@ -61,9 +62,16 @@ router ─► out of scope ─────────────────�
    ├─► rag ──────────────► synth   conceptual: law text, with vigência at the reference date
    ├─► tools (MCP) ──────► synth   numeric: official calculator, the only source of amounts
    └─► rag ─► tools ─────► synth   mixed
+                              │
+                              ▼
+                verify: numbers have an origin · vigência matches · citations support
+                   ├─ ok ─────────────► answer
+                   ├─ problems ───────► synth again with the exact problems (once)
+                   └─ still unsourced ► blocked, with the reason and no number
 ```
 
 ```bash
 scripts/setup_calculadora.sh run     # official calculator on :8080
 uv run python -m rtc.qa_eval         # 20 end-to-end questions -> evals/results/qa.md
+uv run python -m rtc.verify_eval     # seeded mistakes -> evals/results/verify.md
 ```

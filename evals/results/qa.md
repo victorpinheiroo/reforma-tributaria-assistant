@@ -2,7 +2,7 @@ End to end on 20 golden questions (committed before the graph): live model, retr
 
 | passed | outcome | citation | calculator values | route |
 | --- | --- | --- | --- | --- |
-| **16/20** | 17/20 | 8/10 | 5/6 | 17/20 |
+| **17/20** | 18/20 | 8/10 | 5/6 | 17/20 |
 
 | id | expected outcome | got | route (exp/got) | citation | values | pass |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -13,7 +13,7 @@ End to end on 20 golden questions (committed before the graph): live model, retr
 | q05 | sem_numero_oficial | sem_numero_oficial | numerica/numerica | None | None  | yes |
 | q06 | pergunta_de_volta | pergunta_de_volta | numerica/numerica | None | None  | yes |
 | q07 | resposta | resposta | numerica/numerica | None | True vCBS=176.00, vIBS=2.00 | yes |
-| q08 | nao_vigente | resposta | conceitual/conceitual | True | None  | **no** |
+| q08 | nao_vigente | nao_vigente | conceitual/conceitual | True | None  | yes |
 | q09 | resposta | resposta | conceitual/conceitual | True | None  | yes |
 | q10 | fora_escopo | fora_escopo | fora_escopo/fora_escopo | None | None  | yes |
 | q11 | fora_escopo | fora_escopo | fora_escopo/fora_escopo | None | None  | yes |

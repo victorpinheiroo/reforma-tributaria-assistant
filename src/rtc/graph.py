@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 import sys
 import time
 from contextlib import AsyncExitStack, asynccontextmanager
@@ -34,6 +35,14 @@ from pydantic import BaseModel
 
 from rtc.llm import LLMClient, Message, make_client, tool_spec
 from rtc.retrieve import Retriever
+from rtc.verify import (
+    Report,
+    check_numbers,
+    check_vigencia,
+    judge_excerpt,
+    sentences_with_citations,
+    support_check,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 PROMPTS = ROOT / "prompts"
@@ -104,6 +113,10 @@ class State(TypedDict, total=False):
     resposta: str
     citacoes: list[str]
     desfecho: str
+    cited_n: list[int]
+    feedback: str
+    tentativas: int
+    verificacao: dict
     trace: list[dict]
 
 
@@ -116,6 +129,8 @@ class Answer(BaseModel):
     data_origem: str | None
     citacoes: list[dict]
     calculos: list[dict]
+    fontes: list[dict] = []  # every retrieved excerpt shown to the synthesizer
+    verificacao: dict = {}
     trace: list[dict]
 
 
@@ -169,8 +184,8 @@ def _messages(p: Prompt, system: str, user: str) -> list[Message]:
 class Agent:
     def __init__(self, llm: LLMClient, retriever: Retriever, tools: Toolbox):
         self.llm, self.retriever, self.tools = llm, retriever, tools
-        self.p_router, self.p_tools, self.p_synth = (
-            load_prompt(n) for n in ("router", "tools", "synth")
+        self.p_router, self.p_tools, self.p_synth, self.p_judge = (
+            load_prompt(n) for n in ("router", "tools", "synth", "judge")
         )
         self.graph = self._build()
 
@@ -342,14 +357,21 @@ class Agent:
         sys_ = p.system.format(
             data_ref=s["data_ref"], data_origem=s["data_origem"], hoje=s["hoje"], fontes=fontes
         )
+        key = p.key
+        if s.get("feedback"):
+            sys_ += (
+                "\n\nA previous draft failed verification. Fix exactly these problems and keep "
+                "everything else faithful to the sources:\n" + s["feedback"]
+            )
+            key += f"#fix{s.get('tentativas', 1)}"
         msgs = _messages(p, sys_, s["pergunta"])
-        r = await asyncio.to_thread(self.llm.complete, msgs, SynthOut, None, p.key)
+        r = await asyncio.to_thread(self.llm.complete, msgs, SynthOut, None, key)
         if not r.parsed:
             # One retry with a distinct cache key: free-tier models occasionally return prose.
             retry = msgs + [
                 Message(role="user", content="Responda apenas com o objeto JSON pedido.")
             ]
-            r = await asyncio.to_thread(self.llm.complete, retry, SynthOut, None, p.key + "#retry")
+            r = await asyncio.to_thread(self.llm.complete, retry, SynthOut, None, key + "#retry")
         if r.parsed:
             out = SynthOut.model_validate(r.parsed)
         else:
@@ -359,12 +381,96 @@ class Agent:
                 desfecho="nao_encontrei",
             )
         by_n = {t["n"]: t["citacao"] for t in s.get("trechos", [])}
-        cited = [by_n[n] for n in out.citacoes if n in by_n]
+        markers = [int(x) for x in re.findall(r"\[(\d+)\]", out.resposta)]
+        cited_n = [n for n in dict.fromkeys([*out.citacoes, *markers]) if n in by_n]
         return {
             "resposta": out.resposta,
-            "citacoes": cited,
+            "citacoes": [by_n[n] for n in cited_n],
+            "cited_n": cited_n,
             "desfecho": out.desfecho,
             "trace": self._trace(s, "synth", t0, cached=r.cached, parse_error=r.parse_error),
+        }
+
+    # verify -------------------------------------------------------------------------------------
+    async def verify(self, s: State) -> State:
+        t0 = time.perf_counter()
+        trechos = {t["n"]: t for t in s.get("trechos", [])}
+        cited = [trechos[n] for n in s.get("cited_n", []) if n in trechos]
+        tools = [c["resultado"] for c in s.get("calculos", [])]
+        rep_ = Report(
+            sem_origem=check_numbers(
+                s["resposta"],
+                s["pergunta"],
+                s["data_ref"],
+                [t["texto"] for t in cited],
+                tools,
+                [t["vigencia_inicio"] for t in cited if t["vigencia_inicio"]],
+            ),
+            vigencia=check_vigencia(s["resposta"], s["desfecho"], s["data_ref"], cited),
+        )
+        sents = sentences_with_citations(s["resposta"])
+        rep_.sem_suporte = await asyncio.to_thread(
+            support_check,
+            self.llm,
+            sents,
+            {
+                n: judge_excerpt(t["citacao"], t["texto"], t["vigencia_inicio"])
+                for n, t in trechos.items()
+            },
+            self.p_judge,
+        )
+        tent = s.get("tentativas", 0)
+        v = {
+            "ok": rep_.ok,
+            "sem_origem": rep_.sem_origem,
+            "vigencia": rep_.vigencia,
+            "sem_suporte": rep_.sem_suporte,
+            "tentativas": tent,
+            "frases_citadas": len(sents),
+        }
+        upd: State = {
+            "verificacao": v,
+            "trace": self._trace(
+                s,
+                "verify",
+                t0,
+                ok=rep_.ok,
+                tentativa=tent,
+                sem_origem=len(rep_.sem_origem),
+                vigencia=len(rep_.vigencia),
+                sem_suporte=len(rep_.sem_suporte),
+            ),
+        }
+        if not rep_.ok and tent < 1:
+            upd |= {"feedback": rep_.feedback(), "tentativas": tent + 1}
+        return upd
+
+    def after_verify(self, s: State) -> str:
+        v = s["verificacao"]
+        if v["ok"]:
+            return END
+        if s.get("tentativas", 0) == 1 and v["tentativas"] == 0:
+            return "synth"  # one repair pass with the verifier's feedback
+        if v["sem_origem"] or v["vigencia"]:
+            return "bloqueado"  # hard rules: never ship an unsourced number or a wrong vigência
+        return END  # unsupported sentences after repair: shipped with the warning in verificacao
+
+    async def bloqueado(self, s: State) -> State:
+        motivos = []
+        if s["verificacao"]["sem_origem"]:
+            motivos.append("havia valores que não constam das fontes oficiais consultadas")
+        if s["verificacao"]["vigencia"]:
+            motivos.append("a resposta tratava como vigente uma regra que ainda não vale na data")
+        return {
+            "desfecho": "bloqueado",
+            "citacoes": [],
+            "cited_n": [],
+            "resposta": (
+                "Não vou mostrar a resposta gerada porque ela não passou na verificação: "
+                + "; ".join(motivos)
+                + ". Reformule a pergunta ou informe mais dados da operação. "
+                + DISCLAIMER
+            ),
         }
 
     # graph --------------------------------------------------------------------------------------
@@ -376,13 +482,17 @@ class Agent:
         g.add_node("rag", self.rag)
         g.add_node("tools", self.tool_node)
         g.add_node("synth", self.synth)
+        g.add_node("verify", self.verify)
+        g.add_node("bloqueado", self.bloqueado)
         g.add_edge(START, "router")
         g.add_conditional_edges(
             "router", self.after_router, ["fora_escopo", "pergunta_de_volta", "rag", "tools"]
         )
         g.add_conditional_edges("rag", self.after_rag, ["tools", "synth"])
         g.add_edge("tools", "synth")
-        g.add_edge("synth", END)
+        g.add_edge("synth", "verify")
+        g.add_conditional_edges("verify", self.after_verify, ["synth", "bloqueado", END])
+        g.add_edge("bloqueado", END)
         g.add_edge("fora_escopo", END)
         g.add_edge("pergunta_de_volta", END)
         return g.compile()
@@ -403,6 +513,8 @@ class Agent:
                 {
                     "citacao": c,
                     "trecho": trechos[c]["texto"][:400],
+                    "texto": trechos[c]["texto"],  # full excerpt, for audits and the verifier
+                    "n": trechos[c]["n"],
                     "vigencia_inicio": trechos[c]["vigencia_inicio"],
                 }
                 for c in s.get("citacoes", [])
@@ -419,5 +531,16 @@ class Agent:
                 }
                 for c in s.get("calculos", [])
             ],
+            fontes=[
+                {
+                    "n": t["n"],
+                    "citacao": t["citacao"],
+                    "texto": t["texto"],
+                    "vigencia_inicio": t["vigencia_inicio"],
+                    "vigente": t["vigente"],
+                }
+                for t in s.get("trechos", [])
+            ],
+            verificacao=s.get("verificacao", {}),
             trace=s.get("trace", []),
         )

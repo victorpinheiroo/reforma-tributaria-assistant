@@ -47,6 +47,9 @@ select = ["E", "F", "I", "B", "UP"]
 "src/rtc/graph.py" = ["E501"]
 "tests/test_graph.py" = ["E501"]
 "src/rtc/qa_eval.py" = ["E501"]
+"src/rtc/verify.py" = ["E501"]
+"tests/test_verify.py" = ["E501"]
+"src/rtc/verify_eval.py" = ["E501"]
 
 # CPU-only torch on Linux (CI, Docker): the default wheel ships CUDA and is several GB.
 [tool.uv.sources]

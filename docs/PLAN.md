@@ -146,6 +146,48 @@ Golden ponta a ponta (`evals/golden_qa.jsonl`, 20 perguntas) commitado antes do 
 - Modelo devolve argumentos aninhados como string JSON (`"itens": "[{...}]"`); o servidor MCP
   converte e a calculadora recebe o objeto certo.
 
+## Marco 5: verificação antes de responder (2026-11-23)
+
+`src/rtc/verify.py` + nó `verify` no grafo, com **uma** rodada de correção (a síntese recebe a
+lista exata de problemas) e bloqueio se o problema persistir:
+
+1. **Origem dos números** (determinístico): todo número da resposta (valor, alíquota,
+   percentual, ano, data) precisa estar num resultado da calculadora, no texto de um trecho
+   **citado**, na pergunta do usuário ou nas datas de vigência mostradas com as fontes.
+   Identificadores (art. 26, § 1º, LC 214/2025, NCM, [n]) não são afirmações e ficam fora.
+   Persistindo, a resposta é **bloqueada** e o usuário recebe o motivo, sem o número.
+2. **Vigência** (determinístico): trecho citado que ainda não vale na data de referência só pode
+   aparecer numa resposta que diga isso; "Sim, é possível" para regra de 2027 numa pergunta de
+   2026 reprova. Persistindo, bloqueia.
+3. **Suporte** (juiz LLM, `prompts/judge.yml`): cada frase que cita [n] precisa ser sustentada
+   pelo trecho n. Dispara a correção; se persistir, a resposta sai com o aviso em `verificacao`
+   (não bloqueia: o juiz é ruidoso).
+
+**Mutações em respostas reais** (`evals/results/verify.md`; erros semeados nas respostas do
+agente às perguntas do golden):
+
+| operador | mutantes | pegos |
+| --- | --- | --- |
+| valor da calculadora alterado | 2 | 2 (números) |
+| alíquota inventada | 15 | 15 (números) |
+| ano inventado | 15 | 15 (números) |
+| frase além do trecho citado | 8 | 7 (juiz) |
+| citação trocada por outro trecho | 6 | 4 (juiz) |
+| regra futura dita como vigente | 1 | 1 (vigência) |
+| **total** | **47** | **44** |
+
+- Camadas determinísticas: **32/32** números sem origem e 1/1 vigência, **0 falso alarme** nas 15
+  respostas originais.
+- Juiz: 11/14; 1 alarme em resposta original (q08), que atribui à EC 132, art. 9º, § 6º, uma
+  afirmação que o trecho não faz: discutível, provavelmente verdadeiro.
+- Variação do juiz: sem nome do dispositivo e vigência no que ele lê, 14/14 de recall mas 2
+  alarmes (um deles em resposta correta, q20). Ficou a versão com cabeçalho. Bug corrigido no
+  caminho: o divisor de frases quebrava em "art." e mandava meia frase ao juiz.
+
+**Ponta a ponta com verificação: 17/20** (16/20 no marco 4). A q08 agora passa porque a
+verificação de vigência reprovou "Sim, é possível" e a correção respondeu que a regra só vale em
+2027. Seguem errados: q02 e q15 (roteador) e q14 (busca de "cashback").
+
 ## Cronograma (fatia vertical primeiro)
 
 | Marco | Entrega | Critério de pronto |
@@ -154,7 +196,7 @@ Golden ponta a ponta (`evals/golden_qa.jsonl`, 20 perguntas) commitado antes do 
 | 2 ✅ | Servidor MCP `rtc-tools` sobre a calculadora + testes contra as fixtures | cliente MCP real por stdio lista e chama as ferramentas (o Inspector exige Node, ausente aqui); testes sem a calculadora no ar |
 | 3 ✅ | Corpus por dispositivo com vigência; RAG híbrido (denso + BM25 + RRF + filtro de vigência); golden set escrito **antes** da busca | recall@k por tipo de pergunta |
 | 4 ✅ | Grafo LangGraph: data de referência, roteador, RAG, ferramenta, síntese | ponta a ponta no golden set |
-| 5 | Verificação: citação sustenta a frase, todo número veio de ferramenta, vigência bate | % de números sem origem bloqueados |
+| 5 ✅ | Verificação: citação sustenta a frase, todo número veio de ferramenta, vigência bate | % de números sem origem bloqueados |
 | 6 | 60+ perguntas, Streamlit, Docker (calculadora + API + app), README | `docker compose up` sem conta Databricks |
 | 7 | (extensão) Sugestão de classificação fiscal | |
 
