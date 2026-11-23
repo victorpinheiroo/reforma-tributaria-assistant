@@ -51,12 +51,27 @@ Conclusão: tool calling nativo não é o gargalo; a dificuldade vai estar em da
 parâmetros que o usuário não deu (cClassTrib, alíquota de 2027+). O conjunto do spike é fácil
 demais para escolher modelo: o `tool_calls.jsonl` do marco 2 precisa de casos ambíguos.
 
+## Marco 2: servidor MCP `rtc-tools` (2026-11-23)
+
+- `src/rtc/calculadora.py`: cliente tipado. Entradas validadas por Pydantic antes da chamada (NCM 8
+  dígitos, cClassTrib 6, lista de itens não vazia); município por nome resolvido para código IBGE
+  pelos dados abertos da própria calculadora, nunca pelo modelo; recusa da calculadora (4xx) vira
+  `erro` com o título oficial, sem número.
+- `src/rtc/mcp_server.py` (SDK oficial `mcp` 2.3, `MCPServer`): 5 ferramentas, todas exigem data.
+  Resultado `{ok, dados | erro, fonte}` com versão da calculadora e do banco, endpoint e requisição.
+- Testes: 13 cenários gravados da calculadora real (`scripts/record_fixtures.py` ->
+  `tests/fixtures/calculadora/http.json`) e reproduzidos pela camada MCP; requisição não gravada
+  falha o teste, o que prova que parâmetro inválido é recusado antes da chamada. CI sem Java.
+- `scripts/mcp_smoke.py`: 14/14 pelo protocolo real (stdio), calculadora ao vivo, incluindo
+  violação de schema chegando ao cliente como `is_error`.
+- Fora por ora: `calcular_simples_nacional` (outra aplicação Java, `calculadora-rtc-simples-nacional`).
+
 ## Cronograma (fatia vertical primeiro)
 
 | Marco | Entrega | Critério de pronto |
 | --- | --- | --- |
 | 1 ✅ | Spike: calculadora local, 5+ cálculos, tool calling nos modelos gratuitos | este documento |
-| 2 | Servidor MCP `rtc-tools` sobre a calculadora + testes contra as fixtures | MCP Inspector lista e chama as ferramentas; testes sem a calculadora no ar |
+| 2 ✅ | Servidor MCP `rtc-tools` sobre a calculadora + testes contra as fixtures | cliente MCP real por stdio lista e chama as ferramentas (o Inspector exige Node, ausente aqui); testes sem a calculadora no ar |
 | 3 | Corpus por dispositivo com vigência; RAG híbrido (denso + BM25 + RRF + filtro de vigência); golden set escrito **antes** da busca | recall@k por tipo de pergunta |
 | 4 | Grafo LangGraph: data de referência, roteador, RAG, ferramenta, síntese | ponta a ponta no golden set |
 | 5 | Verificação: citação sustenta a frase, todo número veio de ferramenta, vigência bate | % de números sem origem bloqueados |
