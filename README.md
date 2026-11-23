@@ -5,9 +5,10 @@ of the largest VAT transitions in the world. This assistant answers questions wi
 article and computes amounts by calling the Federal Revenue's official open-source tax engine,
 never by letting the model do the math.
 
-> Status: milestone 2. `rtc-tools`, an MCP server over the official calculator (pinned 1.7.2),
-> passes 14/14 checks over stdio against the live calculator; tests replay recorded answers, so CI
-> needs no Java. See [docs/PLAN.md](docs/PLAN.md).
+> Status: milestone 3. MCP server over the official calculator (14/14 checks over stdio) and
+> hybrid retrieval over the law with vigência: 22/26 article hits in the top 5 on a golden set
+> written before the retriever; the vigência filter cuts citations of rules not yet in effect from
+> 2/2 to 0/2. See [docs/PLAN.md](docs/PLAN.md).
 >
 > Not tax advice: answers come from official documents and tools and do not replace an accountant.
 
@@ -37,4 +38,16 @@ Use it from any MCP client, e.g. Claude Desktop (`claude_desktop_config.json`):
     }
   }
 }
+```
+
+## Law corpus and retrieval
+
+LC 214/2025, LC 227/2026 and EC 132/2023 from Planalto's compiled texts, split by legal provision
+(article, paragraph, item), each with the date it starts producing effects, transcribed from the
+law's own effects clause and tested against it. Hybrid retrieval: BM25 + multilingual embeddings,
+RRF fusion, vigência filter at the reference date, cross-encoder reranker, all local on CPU.
+
+```bash
+uv run python -m rtc.ingest.build        # corpus/processed from corpus/raw (pinned by sha256)
+uv run python -m rtc.retrieval_eval      # evals/results/retrieval.md
 ```
