@@ -1,0 +1,30 @@
+{
+  "endpoint": "regime-geral",
+  "request": {
+    "id": "c5",
+    "versao": "1.0.0",
+    "dhFatoGerador": "2027-03-10T10:00:00-03:00",
+    "municipio": 4314902,
+    "uf": "RS",
+    "itens": [
+      {
+        "numero": 1,
+        "cst": "000",
+        "cClassTrib": "000001",
+        "baseCalculo": 1000.0,
+        "ncm": "22030000",
+        "quantidade": 1,
+        "unidade": "UN"
+      }
+    ]
+  },
+  "status": 422,
+  "response": {
+    "detail": "As alíquotas nominais (os três campos cbs, ibsEstadual e ibsMunicipal) devem ser informadas para operações com fato gerador a partir de 01/01/2027",
+    "instance": "/api/calculadora/regime-geral",
+    "status": 422,
+    "title": "Alíquotas nominais não informadas",
+    "type": "http://localhost/errors/aliquotas-nominais-nao-informadas",
+    "timestamp": "2026-11-23T14:09:14.173870800Z"
+  }
+}

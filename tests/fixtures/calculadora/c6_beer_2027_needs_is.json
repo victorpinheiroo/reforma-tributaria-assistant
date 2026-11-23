@@ -1,0 +1,35 @@
+{
+  "endpoint": "regime-geral",
+  "request": {
+    "id": "c6",
+    "versao": "1.0.0",
+    "dhFatoGerador": "2027-03-10T10:00:00-03:00",
+    "municipio": 4314902,
+    "uf": "RS",
+    "itens": [
+      {
+        "numero": 1,
+        "cst": "000",
+        "cClassTrib": "000001",
+        "baseCalculo": 1000.0,
+        "ncm": "22030000",
+        "quantidade": 1,
+        "unidade": "UN",
+        "aliquotasNominais": {
+          "cbs": 8.8,
+          "ibsEstadual": 0.05,
+          "ibsMunicipal": 0.05
+        }
+      }
+    ]
+  },
+  "status": 422,
+  "response": {
+    "detail": "Dados do Imposto Seletivo devem ser informados para NCM 22030000 e data 2027-03-10",
+    "instance": "/api/calculadora/regime-geral",
+    "status": 422,
+    "title": "Dados do Imposto Seletivo não informados",
+    "type": "http://localhost/errors/dados-imposto-seletivo-nao-informados",
+    "timestamp": "2026-11-23T14:09:14.194906300Z"
+  }
+}

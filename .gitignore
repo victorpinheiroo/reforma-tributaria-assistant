@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# Local toolchain and third-party checkouts (portable JDK, official calculator)
+tools/
+vendor/
+
+# LLM response cache
+.cache/
+
+# Secrets and local config
+.env
+.env.*
+.databrickscfg
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

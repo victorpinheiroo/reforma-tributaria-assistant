@@ -1,0 +1,74 @@
+# Plano de execução — reforma-tributaria-assistant
+
+Mesmo ritmo e princípios do macro-sql-br: toda manchete com denominador, oráculo fora do código,
+fatia vertical primeiro, prometer só o demonstrável.
+
+## Estado atual: marco 1 (spike de viabilidade) concluído em 2026-11-23
+
+### Calculadora oficial
+
+- `receitafederal/calculadora-rtc-regime-regular` **1.7.2** (19/11/2026), banco **V0073** de
+  09/11/2026 ("Nova tabela de Classificações Tributárias, IT 2025.002 v.1.71"). Fixada em
+  `scripts/setup_calculadora.sh`; OpenAPI salvo em `docs/calculadora/openapi-1.7.2.json`.
+- **Exige Java 25** (o documento de escopo dizia 21). JDK Temurin 25.0.5.1 portátil em `tools/`,
+  checksum conferido; o Java 17 da máquina não foi tocado.
+- Sobe em ~30 s no perfil `offline` (SQLite gerado por Flyway na primeira vez).
+- 6 cálculos pela API, todos com o resultado esperado; requisição e resposta salvas em
+  `tests/fixtures/calculadora/` e testadas (`tests/test_fixtures.py`):
+
+| caso | o que testa | resultado |
+| --- | --- | --- |
+| c1 | exemplo da própria documentação (serviço de educação, redução 60%) | CBS 42,24 / IBS 0,48 = doc |
+| c2 | 2026, tributação integral, base 1.000, alíquotas de referência | CBS 9,00 / IBS 1,00 |
+| c3 | 2027, camiseta, alíquotas nominais hipotéticas 8,8 / 0,05 / 0,05 | CBS 88,00 / IBS 1,00 |
+| c4 | 2026, arroz da cesta básica (200003), redução 100% | CBS 0,00 / IBS 0,00 |
+| c5 | 2027 sem alíquotas nominais | 422 "Alíquotas nominais não informadas" |
+| c6 | 2027, cerveja sem dados do Imposto Seletivo | 422 "Dados do IS não informados" |
+
+### Achados que mudam o desenho
+
+1. **Só existe alíquota de referência para 2026** (ano de teste: CBS 0,9%, IBS UF 0,1%, IBS mun.
+   0%). De 2027 em diante a calculadora responde 404 e exige alíquotas nominais de quem chama,
+   porque o Senado ainda não fixou as alíquotas de referência. O assistente **não pode** inventar
+   uma alíquota para 2027+: ou pergunta, ou calcula com uma hipótese explícita e marcada como
+   hipótese. Vira categoria do golden set.
+2. **A calculadora aplica regras dependentes de data por conta própria**: cerveja (22030000) não
+   exige Imposto Seletivo em 2026 e exige a partir de 2027. Erro 422 da calculadora é resposta
+   legítima ("falta X"), não falha do sistema; o grafo precisa traduzi-lo, não esconder.
+3. Quase todo endpoint de dados abertos recebe `data`: vigência é parâmetro de primeira classe na
+   própria fonte oficial, o que confirma a premissa do projeto.
+4. **Comitê Gestor do IBS**: o PLP 108/2024 foi sancionado em 13/01/2026; uma página do Planalto o
+   numera como LC 227/2026, número ainda a confirmar no texto oficial. Entra no corpus junto com a
+   EC 132/2023 e a LC 214/2025 (texto compilado do Planalto, que já incorpora alterações).
+
+### Tool calling nos modelos gratuitos (`docs/spike_toolcalling.md`)
+
+8 perguntas, 4 ferramentas, tool calling nativo: 6 de 8 modelos acertam 8/8 (ferramenta,
+argumentos válidos e parâmetros-chave). Llama 4 Maverick troca a data de uma operação de 2027 por
+"hoje"; Llama 3.1 8B chama ferramenta em pergunta conceitual; **Gemma 3 12B 0/8** porque rejeita
+`format: date` no schema (mesma causa do projeto A; a correção conhecida é tirar `format`).
+Conclusão: tool calling nativo não é o gargalo; a dificuldade vai estar em datas, vigência e
+parâmetros que o usuário não deu (cClassTrib, alíquota de 2027+). O conjunto do spike é fácil
+demais para escolher modelo: o `tool_calls.jsonl` do marco 2 precisa de casos ambíguos.
+
+## Cronograma (fatia vertical primeiro)
+
+| Marco | Entrega | Critério de pronto |
+| --- | --- | --- |
+| 1 ✅ | Spike: calculadora local, 5+ cálculos, tool calling nos modelos gratuitos | este documento |
+| 2 | Servidor MCP `rtc-tools` sobre a calculadora + testes contra as fixtures | MCP Inspector lista e chama as ferramentas; testes sem a calculadora no ar |
+| 3 | Corpus por dispositivo com vigência; RAG híbrido (denso + BM25 + RRF + filtro de vigência); golden set escrito **antes** da busca | recall@k por tipo de pergunta |
+| 4 | Grafo LangGraph: data de referência, roteador, RAG, ferramenta, síntese | ponta a ponta no golden set |
+| 5 | Verificação: citação sustenta a frase, todo número veio de ferramenta, vigência bate | % de números sem origem bloqueados |
+| 6 | 60+ perguntas, Streamlit, Docker (calculadora + API + app), README | `docker compose up` sem conta Databricks |
+| 7 | (extensão) Sugestão de classificação fiscal | |
+
+## Decisões pendentes
+
+- [ ] Docker da calculadora: o repositório oficial não traz Dockerfile; escrever um (Temurin 25 +
+  build do JAR + banco Flyway) e validar no CI (esta máquina não tem Docker).
+- [ ] Confirmar o número da lei do Comitê Gestor (LC 227/2026?) no texto oficial.
+- [ ] Casos de 2027+ no golden set: resposta esperada = pedir alíquota ou calcular com hipótese
+  declarada; nunca número apresentado como oficial.
+- [ ] Município: a calculadora usa código IBGE; resolver nome → código via
+  `/dados-abertos/ufs/municipios` dentro da ferramenta, não pelo modelo.
